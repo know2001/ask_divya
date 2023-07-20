@@ -67,7 +67,7 @@ if "messages" not in st.session_state:
 
 for message in st.session_state.messages:
     if message["role"] == "assistant":
-        with st.chat_message(message["role"], avatar="./ask_divya.png"):
+        with st.chat_message(message["role"], avatar="./base_app/ask_divya.png"):
             st.markdown(message["content"])
     else:
         with st.chat_message(message["role"], avatar="🧑🏾"):
@@ -78,7 +78,7 @@ if prompt := st.chat_input("Ask a question"):
     with st.chat_message("user", avatar="🧑🏾"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar="./ask_divya.png"):
+    with st.chat_message("assistant", avatar="./base_app/ask_divya.png"):
         message_placeholder = st.empty()
         full_response = ""
         
