@@ -11,7 +11,7 @@ with st.expander("ℹ️ Disclaimer"):
     )
     
 ### Initial message ###
-message = st.chat_message("assistant", avatar="./ask_divya.png")
+message = st.chat_message("assistant", avatar="./base_app/ask_divya.png")
 message.write("Hello there, what immigration related question can I help you with today?")
 ##########################################
 
