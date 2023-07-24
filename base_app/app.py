@@ -38,10 +38,25 @@ def strings_ranked_by_relatedness(
         input=query,
     )
     query_embedding = query_embedding_response["data"][0]["embedding"]
-    strings_and_relatednesses = [
-        (row["text"], relatedness_fn(query_embedding, row["embedding"]))
-        for i, row in df.iterrows()
-    ]
+
+    #strings_and_relatednesses = [
+    #    (row["text"], relatedness_fn(query_embedding, row["embedding"]))
+    #    for i, row in df.iterrows()
+    #]
+    strings_and_relatednesses = []
+    for i, row in df.iterrows():
+        response = openai.Completion.create(
+            engine="text-davinci-003",
+            prompt=(f"Please summarize the following text:\n{row["text"]}\n\nSummary:"),
+            temperature=0.7,
+            max_tokens=400,
+            top_p=0.9,
+            frequency_penalty=0.0,
+            presence_penalty=1
+        )
+        summary = response.choices[0].text.strip()
+        strings_and_relatednesses.append((summary, relatedness_fn(query_embedding, row["embedding"])))
+        
     strings_and_relatednesses.sort(key=lambda x: x[1], reverse=True)
     strings, relatednesses = zip(*strings_and_relatednesses)
     return strings[:top_n], relatednesses[:top_n]
