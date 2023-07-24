@@ -2,6 +2,7 @@ import openai
 import streamlit as st
 import pandas as pd
 from scipy import spatial
+import tiktoken
 import ast
 
 st.title("Ask Divya")
@@ -20,6 +21,7 @@ message.write("Hello there, what immigration related question can I help you wit
 df = pd.read_csv("embeddings.csv")
 # convert embeddings from CSV str type back to list type
 df['embedding'] = df['embedding'].apply(ast.literal_eval)
+df['title_embedding'] = df['title_embedding'].apply(ast.literal_eval)
 
 
 # Embedding model
@@ -30,6 +32,7 @@ def strings_ranked_by_relatedness(
     query: str,
     df: pd.DataFrame,
     relatedness_fn=lambda x, y: 1 - spatial.distance.cosine(x, y),
+    top_n_titles: int = 5,
     top_n: int = 100
 ) -> tuple[list[str], list[float]]:
     """Returns a list of strings and relatednesses, sorted from most related to least."""
@@ -38,19 +41,42 @@ def strings_ranked_by_relatedness(
         input=query,
     )
     query_embedding = query_embedding_response["data"][0]["embedding"]
+
+    # First, sort titles by relatedness
+    title_relatednesses = [
+        (row["title"], relatedness_fn(query_embedding, row["title_embedding"]))
+        for i, row in df.iterrows()
+    ]
+    title_relatednesses.sort(key=lambda x: x[1], reverse=True)
+    top_titles, _ = zip(*title_relatednesses[:top_n_titles])
+    print(top_titles)
+    
+    # Filter dataframe to include only top titles
+    df_filtered = df[df['title'].isin(top_titles)]
+    
+    # Then within that dataframe, sort texts by relatedness
     strings_and_relatednesses = [
         (row["text"], relatedness_fn(query_embedding, row["embedding"]))
-        for i, row in df.iterrows()
+        for i, row in df_filtered.iterrows()
     ]
     strings_and_relatednesses.sort(key=lambda x: x[1], reverse=True)
     strings, relatednesses = zip(*strings_and_relatednesses)
+    
     return strings[:top_n], relatednesses[:top_n]
 
 def prompt_template(prompt):
     prompt_extra = "Address or answer the question by retrieving the information from the following context. If the context does not address the question, say you don't know the answer. Context:"
-    strings, relatednesses = strings_ranked_by_relatedness(prompt, df, top_n=3)
+    strings, relatednesses = strings_ranked_by_relatedness(prompt, df, top_n=15)
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    token_limit = 1200  # set token limit here
+    total_tokens = 0
     for string in strings:
-        prompt_extra += string + "\n"
+        string_tokens = len(encoding.encode(string))  # get number of tokens in string
+        if total_tokens + string_tokens <= token_limit:
+            total_tokens += string_tokens
+            prompt_extra += "\n" + string
+        else:
+            break
     return prompt + " " + prompt_extra
         
 
@@ -59,7 +85,7 @@ def prompt_template(prompt):
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-4"
+    st.session_state["openai_model"] = "gpt-3.5-turbo"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
