@@ -60,7 +60,7 @@ def prompt_template(prompt):
 #openai.api_key = "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"
 openai.api_key = "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"
 if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-3.5-turbo-16k"
+    st.session_state["openai_model"] = "gpt-4"   #"3.5-turbo-16k"
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
