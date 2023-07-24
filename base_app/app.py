@@ -45,9 +45,10 @@ def strings_ranked_by_relatedness(
     #]
     strings_and_relatednesses = []
     for i, row in df.iterrows():
+        query = row["text"]
         response = openai.Completion.create(
             engine="text-davinci-003",
-            prompt=(f"Please summarize the following text:\n{row["text"]}\n\nSummary:"),
+            prompt=(f"Please summarize the following text:\n{query}\n\nSummary:"),
             temperature=0.7,
             max_tokens=400,
             top_p=0.9,
