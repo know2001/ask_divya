@@ -10,7 +10,7 @@ with st.expander("ℹ️ Disclaimer"):
     st.caption(
         "For official immigration advice please consult a certified lawyer"
     )
-    
+
 ### Initial message ###
 message = st.chat_message("assistant", avatar="./ask_divya.png")
 message.write("Hello there, what immigration related question can I help you with today?")
@@ -49,7 +49,6 @@ def strings_ranked_by_relatedness(
     ]
     title_relatednesses.sort(key=lambda x: x[1], reverse=True)
     top_titles, _ = zip(*title_relatednesses[:top_n_titles])
-    print(top_titles)
     
     # Filter dataframe to include only top titles
     df_filtered = df[df['title'].isin(top_titles)]
@@ -61,23 +60,31 @@ def strings_ranked_by_relatedness(
     ]
     strings_and_relatednesses.sort(key=lambda x: x[1], reverse=True)
     strings, relatednesses = zip(*strings_and_relatednesses)
-    
     return strings[:top_n], relatednesses[:top_n]
 
 def prompt_template(prompt):
     prompt_extra = "Address or answer the question by retrieving the information from the following context. If the context does not address the question, say you don't know the answer. Context:"
     strings, relatednesses = strings_ranked_by_relatedness(prompt, df, top_n=15)
     encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-    token_limit = 1200  # set token limit here
+    token_limit = 350  # set token limit here
     total_tokens = 0
     for string in strings:
-        string_tokens = len(encoding.encode(string))  # get number of tokens in string
-        if total_tokens + string_tokens <= token_limit:
-            total_tokens += string_tokens
-            prompt_extra += "\n" + string
-        else:
+        print(total_tokens)
+        string_tokens = len(encoding.encode(string))
+        if total_tokens > token_limit:
             break
+        if string_tokens > token_limit:
+            prompt_extra += " " + encoding.decode(encoding.encode(string)[:token_limit - total_tokens])
+            total_tokens += string_tokens
+            break
+        else:
+            prompt_extra += " " + string
+            total_tokens += string_tokens
+    
+    print(prompt + " " + prompt_extra)
+
     return prompt + " " + prompt_extra
+
         
 
 ##########################################
