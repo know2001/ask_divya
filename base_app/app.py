@@ -4,7 +4,7 @@ import pandas as pd
 from scipy import spatial
 import ast
 import nltk
-nltk.download('punkt')
+nltk.download('popular', halt_on_error=False)
 
 st.title("Ask Divya")
 with st.expander("ℹ️ Disclaimer"):
