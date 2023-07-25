@@ -73,7 +73,7 @@ def strings_ranked_by_relatedness(
         for subquery in subqueries:
             response = openai.Completion.create(
                 engine="text-davinci-003",
-                prompt=(f"Please summarize the following text:\n{query}\n\nSummary:"),
+                prompt=(f"Please summarize the following text:\n{subquery}\n\nSummary:"),
                 temperature=0.7,
                 max_tokens=4096//len(subqueries),
                 top_p=0.9,
