@@ -47,14 +47,14 @@ def strings_ranked_by_relatedness(
     #]
 
     import nltk
-    # generate chunks of text \ sentences <= 4096 tokens
+    # generate chunks of text \ sentences <= 1024 tokens
     def nest_sentences(document):
       nested = []
       sent = []
       length = 0
       for sentence in nltk.sent_tokenize(document):
         length += len(sentence)
-        if length < 4096:
+        if length < 1024:
           sent.append(sentence)
         else:
           nested.append(sent)
