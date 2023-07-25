@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 from scipy import spatial
 import ast
+import nltk
+nltk.download('punkt')
 
 st.title("Ask Divya")
 with st.expander("ℹ️ Disclaimer"):
