@@ -12,13 +12,13 @@ with st.expander("ℹ️ Disclaimer"):
     )
     
 ### Initial message ###
-message = st.chat_message("assistant", avatar="./ask_divya.png")
+message = st.chat_message("assistant", avatar="https://raw.githubusercontent.com/manasvitickoo/ask_divya_img/main/ask_divya.png")
 message.write("Hello there, what immigration related question can I help you with today?")
 ##########################################
 
 ### Embedding ###
 
-df = pd.read_csv("embeddings.csv")
+df = pd.read_csv("base_app/embeddings.csv")
 # convert embeddings from CSV str type back to list type
 df['embedding'] = df['embedding'].apply(ast.literal_eval)
 df['title_embedding'] = df['title_embedding'].apply(ast.literal_eval)
@@ -66,8 +66,8 @@ def strings_ranked_by_relatedness(
 
 def prompt_template(prompt):
     prompt_extra = "Address or answer the question by retrieving the information from the following context. If the context does not address the question, say you don't know the answer. Context:"
-    strings, relatednesses = strings_ranked_by_relatedness(prompt, df, top_n=15)
-    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+    strings, relatednesses = strings_ranked_by_relatedness(prompt, df, top_n=2)
+    encoding = tiktoken.encoding_for_model("gpt-3.5-turbo-16k")
     token_limit = 1200  # set token limit here
     total_tokens = 0
     for string in strings:
@@ -92,7 +92,7 @@ if "messages" not in st.session_state:
 
 for message in st.session_state.messages:
     if message["role"] == "assistant":
-        with st.chat_message(message["role"], avatar="./ask_divya.png"):
+        with st.chat_message(message["role"], avatar="https://raw.githubusercontent.com/manasvitickoo/ask_divya_img/main/ask_divya.png"):
             st.markdown(message["content"])
     else:
         with st.chat_message(message["role"], avatar="🧑🏾"):
@@ -103,7 +103,7 @@ if prompt := st.chat_input("Ask a question"):
     with st.chat_message("user", avatar="🧑🏾"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar="./ask_divya.png"):
+    with st.chat_message("assistant", avatar="https://raw.githubusercontent.com/manasvitickoo/ask_divya_img/main/ask_divya.png"):
         message_placeholder = st.empty()
         full_response = ""
         
