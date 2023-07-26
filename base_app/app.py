@@ -47,6 +47,8 @@ def strings_ranked_by_relatedness(
     return strings[:top_n], relatednesses[:top_n]
 
 def prompt_template(prompt):
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
+    print(prompt)
     prompt_extra = "Address or answer the question by retrieving the information from the following context. If the context does not address the question, say you don't know the answer. Context:"
     strings, relatednesses = strings_ranked_by_relatedness(prompt, df, top_n=3)
     for string in strings:
