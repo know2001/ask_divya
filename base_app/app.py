@@ -3,8 +3,6 @@ import streamlit as st
 import pandas as pd
 from scipy import spatial
 import ast
-import nltk
-nltk.download('popular', halt_on_error=False)
 
 st.title("Ask Divya")
 with st.expander("ℹ️ Disclaimer"):
@@ -40,50 +38,10 @@ def strings_ranked_by_relatedness(
         input=query,
     )
     query_embedding = query_embedding_response["data"][0]["embedding"]
-
-    #strings_and_relatednesses = [
-    #    (row["text"], relatedness_fn(query_embedding, row["embedding"]))
-    #    for i, row in df.iterrows()
-    #]
-
-    import nltk
-    # generate chunks of text \ sentences <= 1024 tokens
-    def nest_sentences(document):
-      nested = []
-      sent = []
-      length = 0
-      for sentence in nltk.sent_tokenize(document):
-        length += len(sentence)
-        if length < 1024:
-          sent.append(sentence)
-        else:
-          nested.append(sent)
-          sent = []
-          length = 0
-
-      if sent:
-        nested.append(sent)
-      return nested
-    
-    strings_and_relatednesses = []
-    for i, row in df.iterrows():
-        query = row["text"]
-        subqueries = nest_sentences(query)
-        summaries = []
-        for subquery in subqueries:
-            response = openai.Completion.create(
-                engine="text-davinci-003",
-                prompt=(f"Please summarize the following text:\n{subquery}\n\nSummary:"),
-                temperature=0.7,
-                max_tokens=4096//len(subqueries),
-                top_p=0.9,
-                frequency_penalty=0.0,
-                presence_penalty=1
-            )
-            summary = response.choices[0].text.strip()
-            summaries.append(summary)
-        strings_and_relatednesses.append((summaries, relatedness_fn(query_embedding, row["embedding"])))
-    
+    strings_and_relatednesses = [
+        (row["text"], relatedness_fn(query_embedding, row["embedding"]))
+        for i, row in df.iterrows()
+    ]
     strings_and_relatednesses.sort(key=lambda x: x[1], reverse=True)
     strings, relatednesses = zip(*strings_and_relatednesses)
     return strings[:top_n], relatednesses[:top_n]
