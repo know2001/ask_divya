@@ -18,7 +18,7 @@ message.write("Hello there, what immigration related question can I help you wit
 
 ### Embedding ###
 
-df = pd.read_csv("base_app/embeddings.csv")
+df = pd.read_csv("embeddings.csv")
 # convert embeddings from CSV str type back to list type
 df['embedding'] = df['embedding'].apply(ast.literal_eval)
 df['title_embedding'] = df['title_embedding'].apply(ast.literal_eval)
