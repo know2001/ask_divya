@@ -5,6 +5,8 @@ from scipy import spatial
 import tiktoken
 import ast
 
+openai.api_key = st.secrets["OPENAI_API_KEY"]
+
 st.title("Ask Divya")
 with st.expander("ℹ️ Disclaimer"):
     st.caption(
@@ -81,8 +83,6 @@ def prompt_template(prompt):
         
 
 ##########################################
-
-openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 if "openai_model" not in st.session_state:
     st.session_state["openai_model"] = "gpt-3.5-turbo"
