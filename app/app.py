@@ -1,3 +1,5 @@
+# Please insert OpenAI API key in the .streamlit/secrets.toml file before commencing work
+
 import openai
 import streamlit as st
 import pandas as pd
@@ -20,10 +22,10 @@ message.write("Hello there, what immigration related question can I help you wit
 
 ### Embedding ###
 
-df = pd.read_csv("embeddings.csv")
+df = pd.read_csv("5_embeddings.csv")
 # convert embeddings from CSV str type back to list type
-df['embedding'] = df['embedding'].apply(ast.literal_eval)
-df['title_embedding'] = df['title_embedding'].apply(ast.literal_eval)
+df['embedded_text'] = df['embedded_text'].apply(ast.literal_eval)
+df['embedded_title'] = df['embedded_title'].apply(ast.literal_eval)
 
 
 # Embedding model
@@ -46,7 +48,7 @@ def strings_ranked_by_relatedness(
 
     # First, sort titles by relatedness
     title_relatednesses = [
-        (row["title"], relatedness_fn(query_embedding, row["title_embedding"]))
+        (row["aggregate_title"], relatedness_fn(query_embedding, row["embedded_title"]))
         for i, row in df.iterrows()
     ]
     title_relatednesses.sort(key=lambda x: x[1], reverse=True)
@@ -54,11 +56,11 @@ def strings_ranked_by_relatedness(
     print(top_titles)
     
     # Filter dataframe to include only top titles
-    df_filtered = df[df['title'].isin(top_titles)]
+    df_filtered = df[df['aggregate_title'].isin(top_titles)]
     
     # Then within that dataframe, sort texts by relatedness
     strings_and_relatednesses = [
-        (row["text"], relatedness_fn(query_embedding, row["embedding"]))
+        (row["text"], relatedness_fn(query_embedding, row["embedded_text"]))
         for i, row in df_filtered.iterrows()
     ]
     strings_and_relatednesses.sort(key=lambda x: x[1], reverse=True)
@@ -92,7 +94,7 @@ if "messages" not in st.session_state:
 
 for message in st.session_state.messages:
     if message["role"] == "assistant":
-        with st.chat_message(message["role"], avatar="https://raw.githubusercontent.com/manasvitickoo/ask_divya_img/main/ask_divya.png"):
+        with st.chat_message(message["role"], avatar="https://github.com/know2001/ask_divya/tree/main/app/ask_divya.png"):
             st.markdown(message["content"])
     else:
         with st.chat_message(message["role"], avatar="🧑🏾"):
@@ -103,7 +105,7 @@ if prompt := st.chat_input("Ask a question"):
     with st.chat_message("user", avatar="🧑🏾"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar="https://raw.githubusercontent.com/manasvitickoo/ask_divya_img/main/ask_divya.png"):
+    with st.chat_message("assistant", avatar="https://github.com/know2001/ask_divya/tree/main/app/ask_divya.png"):
         message_placeholder = st.empty()
         full_response = ""
         
